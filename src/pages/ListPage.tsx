@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { v4 as uuidv4 } from "uuid";
 import List from "../components/List/List";
 import type { BaseListItem } from "../components/List/List";
@@ -19,7 +19,7 @@ interface Product extends BaseListItem {
 }
 
 function ListPage() {
-  const [itemsList1, setItemsList1] = useState<MyListItem[]>([
+  const [itemsList1] = useState<MyListItem[]>([
     {
       id: uuidv4(),
       name: "Estudar React",
@@ -46,7 +46,7 @@ function ListPage() {
     },
   ]);
 
-  const [productsList, setProductsList] = useState<Product[]>([
+  const [productsList] = useState<Product[]>([
     {
       id: uuidv4(),
       name: "Smartphone Pro",
@@ -78,7 +78,7 @@ function ListPage() {
   ]);
 
   // --- Estados para a ordenação e filtragem da List 1 ---
-  const [sortByList1, setSortByList1] = useState<string>("name");
+  const [sortByList1, setSortByList1] = useState<keyof MyListItem>("name");
   const [sortDirectionList1, setSortDirectionList1] = useState<
     "asc" | "desc"
   >("asc");
@@ -119,7 +119,7 @@ function ListPage() {
   }, [itemsList1, sortByList1, sortDirectionList1, filterValueList1]);
 
   // --- Estados para a ordenação e filtragem da Products List ---
-  const [sortByProducts, setSortByProducts] = useState<string>("name");
+  const [sortByProducts, setSortByProducts] = useState<keyof Product>("name");
   const [sortDirectionProducts, setSortDirectionProducts] = useState<
     "asc" | "desc"
   >("asc");
@@ -246,13 +246,14 @@ function ListPage() {
       <List
         title="Lista de Lembretes"
         items={[]}
+        renderItem={() => null}
         emptyMessage="Nenhum lembrete para hoje!"
         isLoading={false}
       />
 
       {/* --- Lista Carregando --- */}
       <h3 className="text-xl font-semibold">Lista Carregando</h3>
-      <List title="Dados do Servidor" items={[]} isLoading />
+      <List title="Dados do Servidor" items={[]} renderItem={() => null} isLoading />
     </div>
   );
 }

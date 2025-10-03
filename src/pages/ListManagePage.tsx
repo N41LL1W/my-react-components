@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import List from "../components/List/List";
 import type { BaseListItem } from "../components/List/List";
