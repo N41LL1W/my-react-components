@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import List from "../components/List/List";
 import type { BaseListItem } from "../components/List/List";
+import { Button } from "../components/ui/Button";
+import { Input } from "../components/ui/Input";
 
 interface MyListItem extends BaseListItem {
   name: string;
@@ -15,77 +17,37 @@ const initialItems: MyListItem[] = [
 
 function ListCreatePage() {
   const [currentListItems, setCurrentListItems] = useState<MyListItem[]>(initialItems);
-  const [newItemName, setNewItemName] = useState<string>("");
-  const [newItemDescription, setNewItemDescription] = useState<string>("");
+  const [newItemName, setNewItemName] = useState("");
+  const [newItemDescription, setNewItemDescription] = useState("");
 
   const handleAddItem = (e: React.FormEvent) => {
     e.preventDefault();
-    if (newItemName.trim() === "") return;
+    if (!newItemName.trim()) return;
 
-    const newItem: MyListItem = {
-      id: uuidv4(),
-      name: newItemName,
-      description: newItemDescription,
-    };
-
-    setCurrentListItems((prevItems) => [...prevItems, newItem]);
+    const newItem: MyListItem = { id: uuidv4(), name: newItemName, description: newItemDescription };
+    setCurrentListItems((prev) => [...prev, newItem]);
     setNewItemName("");
     setNewItemDescription("");
   };
 
   return (
-    <div>
-      <h2 className="text-xl font-bold mb-4">Criar Novo Item para a Lista</h2>
+    <div className="p-6 max-w-md mx-auto space-y-6">
+      <h1 className="text-2xl font-bold">Criar Novo Item para a Lista</h1>
 
-      <form
-        onSubmit={handleAddItem}
-        className="mb-6 p-4 border rounded-lg max-w-md space-y-3"
-      >
-        <div>
-          <label htmlFor="itemName" className="block text-sm mb-1">
-            Nome do Item:
-          </label>
-          <input
-            id="itemName"
-            type="text"
-            value={newItemName}
-            onChange={(e) => setNewItemName(e.target.value)}
-            placeholder="Ex: Tarefa Importante"
-            className="w-full px-3 py-2 border rounded-md"
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="itemDescription" className="block text-sm mb-1">
-            Descrição:
-          </label>
-          <textarea
-            id="itemDescription"
-            value={newItemDescription}
-            onChange={(e) => setNewItemDescription(e.target.value)}
-            placeholder="Detalhes do item..."
-            className="w-full px-3 py-2 border rounded-md"
-            rows={3}
-          />
-        </div>
-        <button
-          type="submit"
-          className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-        >
-          Adicionar Item
-        </button>
+      <form onSubmit={handleAddItem} className="space-y-4 p-4 border rounded-lg">
+        <Input label="Nome do Item" placeholder="Ex: Tarefa Importante" value={newItemName} onChange={(e) => setNewItemName(e.target.value)} required />
+        <Input label="Descrição" placeholder="Detalhes do item..." value={newItemDescription} onChange={(e) => setNewItemDescription(e.target.value)} />
+        <Button type="submit" variant="success" className="w-full">Adicionar Item</Button>
       </form>
 
-      <h3 className="text-lg font-semibold mb-2">Lista Atual:</h3>
+      <h2 className="text-xl font-semibold">Lista Atual</h2>
       <List
         title="Itens Criados"
         items={currentListItems}
         renderItem={(item) => (
           <div>
             <strong>{item.name}</strong>
-            {item.description && (
-              <p className="text-sm text-gray-600 m-0">{item.description}</p>
-            )}
+            {item.description && <p className="text-sm text-gray-600 dark:text-gray-300">{item.description}</p>}
           </div>
         )}
         emptyMessage="Comece a adicionar itens usando o formulário acima!"

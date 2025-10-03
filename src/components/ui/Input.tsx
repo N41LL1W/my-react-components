@@ -1,34 +1,24 @@
-// src/components/ui/Input.tsx
 import React from "react";
+import type { InputHTMLAttributes } from "react";
 import clsx from "clsx";
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
-  error?: string;
+  fullWidth?: boolean;
 }
 
-export const Input: React.FC<InputProps> = ({
-  label,
-  error,
-  className,
-  ...props
-}) => {
+export const Input: React.FC<InputProps> = ({ label, fullWidth = true, className, ...props }) => {
   return (
-    <div className="flex flex-col gap-1 w-full">
-      {label && (
-        <label className="text-sm font-medium text-gray-700">{label}</label>
-      )}
+    <div className={clsx("flex flex-col", fullWidth && "w-full")}>
+      {label && <label className="mb-1 font-medium text-gray-700 dark:text-gray-200">{label}</label>}
       <input
         className={clsx(
-          "px-3 py-2 rounded-lg border border-gray-300 shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition",
-          error && "border-red-500 focus:ring-red-500 focus:border-red-500",
+          "px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700",
+          fullWidth && "w-full",
           className
         )}
         {...props}
       />
-      {error && <span className="text-xs text-red-500">{error}</span>}
     </div>
   );
 };
-
-export default Input;

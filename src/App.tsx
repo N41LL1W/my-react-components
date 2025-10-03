@@ -1,5 +1,5 @@
+import React from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-import HomePage from "./pages/HomePage";
 import ListPage from "./pages/ListPage";
 import ListCreatePage from "./pages/ListCreatePage";
 import ListManagePage from "./pages/ListManagePage";
@@ -7,38 +7,43 @@ import ListManagePage from "./pages/ListManagePage";
 function App() {
   return (
     <Router>
-      <nav className="p-4 bg-gray-100 border-b mb-6">
-        <ul className="flex gap-6 list-none">
-          <li>
-            <Link to="/" className="text-blue-600 hover:underline">
-              Home
-            </Link>
-          </li>
-          <li>
-            <Link to="/list" className="text-blue-600 hover:underline">
-              Visualizar Listas
-            </Link>
-          </li>
-          <li>
-            <Link to="/list/create" className="text-blue-600 hover:underline">
-              Criar Item da Lista
-            </Link>
-          </li>
-          <li>
-            <Link to="/list/manage" className="text-blue-600 hover:underline">
-              Gerenciar Lista
-            </Link>
-          </li>
-        </ul>
-      </nav>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col">
+        {/* Cabeçalho */}
+        <header className="bg-green-600 dark:bg-green-700 text-white p-4 shadow-md">
+          <nav className="container mx-auto flex flex-wrap gap-4">
+            <Link to="/" className="font-bold hover:underline">Home</Link>
+            <Link to="/list" className="hover:underline">Lista</Link>
+            <Link to="/create" className="hover:underline">Criar</Link>
+            <Link to="/manage" className="hover:underline">Gerenciar</Link>
+          </nav>
+        </header>
 
-      <div className="p-6">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/list" element={<ListPage />} />
-          <Route path="/list/create" element={<ListCreatePage />} />
-          <Route path="/list/manage" element={<ListManagePage />} />
-        </Routes>
+        {/* Conteúdo principal */}
+        <main className="flex-grow container mx-auto p-6">
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <div className="flex flex-col items-center justify-center h-[70vh]">
+                  <h1 className="text-5xl font-extrabold text-green-600 dark:text-green-400 mb-4">
+                    Tailwind funcionando 🚀
+                  </h1>
+                  <p className="text-lg text-gray-700 dark:text-gray-300">
+                    Use a navegação acima para explorar os exemplos de listas.
+                  </p>
+                </div>
+              }
+            />
+            <Route path="/list" element={<ListPage />} />
+            <Route path="/create" element={<ListCreatePage />} />
+            <Route path="/manage" element={<ListManagePage />} />
+          </Routes>
+        </main>
+
+        {/* Rodapé */}
+        <footer className="bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 p-4 text-center">
+          © {new Date().getFullYear()} My React Components
+        </footer>
       </div>
     </Router>
   );
