@@ -1,160 +1,106 @@
-import { useState, useMemo } from "react";
-import { v4 as uuidv4 } from "uuid";
+import React, { useContext, useState, useMemo } from "react";
+import { ThemeContext } from "../context/ThemeContext";
 import List from "../components/List/List";
 import type { BaseListItem } from "../components/List/List";
-import { Button } from "../components/ui/Button";
 
+// Define a estrutura de cada item
 interface MyListItem extends BaseListItem {
-  name: string;
-  description?: string;
-  createdAt: number;
+  nome: string;
+  categoria: string;
 }
 
-interface Product extends BaseListItem {
-  name: string;
-  price: number;
-  category: string;
-  createdAt: number;
-}
+// Dados de exemplo
+const mockData: MyListItem[] = [
+  { id: "1", nome: "Computador", categoria: "Eletrônicos" },
+  { id: "2", nome: "Caderno", categoria: "Papelaria" },
+  { id: "3", nome: "Mesa", categoria: "Móveis" },
+  { id: "4", nome: "Caneta", categoria: "Papelaria" },
+  { id: "5", nome: "Mouse", categoria: "Eletrônicos" },
+];
 
-function ListPage() {
-  const [itemsList1] = useState<MyListItem[]>([
-    { id: uuidv4(), name: "Estudar React", description: "Revisar hooks e componentes", createdAt: Date.now() - 50000000 },
-    { id: uuidv4(), name: "Fazer compras", description: "Comprar frutas e vegetais", createdAt: Date.now() - 30000000 },
-    { id: uuidv4(), name: "Trabalho de faculdade", description: "Finalizar relatório", createdAt: Date.now() - 10000000 },
-    { id: uuidv4(), name: "Academia", description: "Treino de pernas", createdAt: Date.now() - 70000000 },
-  ]);
+export default function ListPage() {
+  const { theme, toggleTheme } = useContext(ThemeContext);
 
-  const [productsList] = useState<Product[]>([
-    { id: uuidv4(), name: "Smartphone Pro", price: 999.99, category: "Eletrônicos", createdAt: Date.now() - 20000000 },
-    { id: uuidv4(), name: "Fone de Ouvido", price: 150, category: "Eletrônicos", createdAt: Date.now() - 80000000 },
-    { id: uuidv4(), name: "Teclado Mecânico", price: 280.5, category: "Periféricos", createdAt: Date.now() - 10000000 },
-    { id: uuidv4(), name: "Mouse Gamer", price: 120, category: "Periféricos", createdAt: Date.now() - 60000000 },
-  ]);
+  // Estado para filtro e ordenação
+  const [filterValue, setFilterValue] = useState("");
+  const [sortBy, setSortBy] = useState<keyof MyListItem>("nome");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
-  // --- Estados de List 1 ---
-  const [sortByList1, setSortByList1] = useState<keyof MyListItem>("name");
-  const [sortDirectionList1, setSortDirectionList1] = useState<"asc" | "desc">("asc");
-  const [filterValueList1, setFilterValueList1] = useState("");
+  // Filtro e ordenação otimizados com useMemo
+  const filteredItems = useMemo(() => {
+    let result = [...mockData];
 
-  const filteredAndSortedList1 = useMemo(() => {
-    let currentItems = [...itemsList1];
-
-    if (filterValueList1) {
-      currentItems = currentItems.filter(
+    if (filterValue) {
+      result = result.filter(
         (item) =>
-          item.name.toLowerCase().includes(filterValueList1.toLowerCase()) ||
-          (item.description && item.description.toLowerCase().includes(filterValueList1.toLowerCase()))
+          item.nome.toLowerCase().includes(filterValue.toLowerCase()) ||
+          item.categoria.toLowerCase().includes(filterValue.toLowerCase())
       );
     }
 
-    if (sortByList1) {
-      currentItems.sort((a, b) => {
-        const aValue = a[sortByList1];
-        const bValue = b[sortByList1];
-        if (typeof aValue === "string" && typeof bValue === "string") return sortDirectionList1 === "asc" ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
-        if (typeof aValue === "number" && typeof bValue === "number") return sortDirectionList1 === "asc" ? aValue - bValue : bValue - aValue;
-        return 0;
-      });
-    }
-    return currentItems;
-  }, [itemsList1, sortByList1, sortDirectionList1, filterValueList1]);
+    result.sort((a, b) => {
+      const valA = String(a[sortBy]).toLowerCase();
+      const valB = String(b[sortBy]).toLowerCase();
 
-  // --- Estados de Products ---
-  const [sortByProducts, setSortByProducts] = useState<keyof Product>("name");
-  const [sortDirectionProducts, setSortDirectionProducts] = useState<"asc" | "desc">("asc");
-  const [filterValueProducts, setFilterValueProducts] = useState("");
+      if (valA < valB) return sortDirection === "asc" ? -1 : 1;
+      if (valA > valB) return sortDirection === "asc" ? 1 : -1;
+      return 0;
+    });
 
-  const filteredAndSortedProducts = useMemo(() => {
-    let currentProducts = [...productsList];
+    return result;
+  }, [filterValue, sortBy, sortDirection]);
 
-    if (filterValueProducts) {
-      currentProducts = currentProducts.filter(
-        (p) =>
-          p.name.toLowerCase().includes(filterValueProducts.toLowerCase()) ||
-          p.category.toLowerCase().includes(filterValueProducts.toLowerCase())
-      );
-    }
+  // Manipuladores
+  const handleSort = (key: keyof MyListItem, direction: "asc" | "desc") => {
+    setSortBy(key);
+    setSortDirection(direction);
+  };
 
-    if (sortByProducts) {
-      currentProducts.sort((a, b) => {
-        const aValue = a[sortByProducts];
-        const bValue = b[sortByProducts];
-        if (typeof aValue === "string" && typeof bValue === "string") return sortDirectionProducts === "asc" ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
-        if (typeof aValue === "number" && typeof bValue === "number") return sortDirectionProducts === "asc" ? aValue - bValue : bValue - aValue;
-        return 0;
-      });
-    }
+  const handleFilterChange = (value: string) => {
+    setFilterValue(value);
+  };
 
-    return currentProducts;
-  }, [productsList, sortByProducts, sortDirectionProducts, filterValueProducts]);
-
-  const handleTaskClick = (item: MyListItem) => alert(`Você clicou na tarefa: ${item.name}`);
-  const handleProductClick = (p: Product) => alert(`Você clicou no produto: ${p.name} - R$ ${p.price.toFixed(2)}`);
+  const handleItemClick = (item: MyListItem) => {
+    alert(`Você clicou em: ${item.nome}`);
+  };
 
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-3xl font-bold">Demonstrações do Componente de Lista</h1>
-      <p>Explore as funcionalidades do componente `List` abaixo.</p>
+    <div
+      className={`min-h-screen p-8 transition-colors duration-300 ${
+        theme === "dark" ? "bg-gray-900 text-gray-100" : "bg-gray-100 text-gray-900"
+      }`}
+    >
+      {/* Cabeçalho */}
+      <header className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
+        <h1 className="text-3xl font-bold">Lista de Itens</h1>
 
-      {/* Lista de Tarefas */}
-      <h2 className="text-xl font-semibold">Lista de Tarefas</h2>
-      <List
-        title="Minhas Tarefas"
-        items={filteredAndSortedList1}
-        onItemClick={handleTaskClick}
+        <button
+          onClick={toggleTheme}
+          className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition"
+        >
+          Alternar para modo {theme === "light" ? "escuro 🌙" : "claro ☀️"}
+        </button>
+      </header>
+
+      {/* Lista */}
+      <List<MyListItem>
+        title="Itens disponíveis"
+        items={filteredItems}
         renderItem={(item) => (
-          <div className="flex justify-between items-center w-full">
-            <div>
-              <strong>{item.name}</strong>
-              {item.description && <p className="text-sm text-gray-600 dark:text-gray-300">{item.description}</p>}
-            </div>
-            <span className="text-xs text-gray-400">Criado em: {new Date(item.createdAt).toLocaleDateString()}</span>
+          <div>
+            <p className="font-semibold">{item.nome}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{item.categoria}</p>
           </div>
         )}
+        onItemClick={handleItemClick}
         sortable
-        onSort={(by, dir) => { setSortByList1(by); setSortDirectionList1(dir); }}
-        currentSortBy={sortByList1}
-        currentSortDirection={sortDirectionList1}
+        onSort={handleSort}
+        currentSortBy={sortBy}
+        currentSortDirection={sortDirection}
         filterable
-        onFilterChange={setFilterValueList1}
-        currentFilterValue={filterValueList1}
+        onFilterChange={handleFilterChange}
+        currentFilterValue={filterValue}
       />
-
-      {/* Lista de Produtos */}
-      <h2 className="text-xl font-semibold">Lista de Produtos</h2>
-      <List
-        title="Meus Produtos Eletrônicos"
-        items={filteredAndSortedProducts}
-        onItemClick={handleProductClick}
-        renderItem={(product) => (
-          <div className="flex items-center gap-4 py-2">
-            <div className="flex-grow">
-              <strong>{product.name}</strong>
-              <p className="text-sm text-gray-600 dark:text-gray-300">Categoria: {product.category}</p>
-            </div>
-            <span className="font-bold text-green-600 dark:text-green-400">R$ {product.price.toFixed(2)}</span>
-            <span className="text-xs text-gray-400 dark:text-gray-500">Criado em: {new Date(product.createdAt).toLocaleDateString()}</span>
-          </div>
-        )}
-        sortable
-        onSort={(by, dir) => { setSortByProducts(by); setSortDirectionProducts(dir); }}
-        currentSortBy={sortByProducts}
-        currentSortDirection={sortDirectionProducts}
-        filterable
-        onFilterChange={setFilterValueProducts}
-        currentFilterValue={filterValueProducts}
-      />
-
-      {/* Lista Vazia */}
-      <h2 className="text-xl font-semibold">Lista Vazia</h2>
-      <List title="Lista de Lembretes" items={[]} renderItem={() => null} emptyMessage="Nenhum lembrete para hoje!" />
-
-      {/* Lista Carregando */}
-      <h2 className="text-xl font-semibold">Lista Carregando</h2>
-      <List title="Dados do Servidor" items={[]} renderItem={() => null} isLoading />
     </div>
   );
 }
-
-export default ListPage;

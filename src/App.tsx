@@ -1,51 +1,76 @@
+// src/App.tsx
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import { ThemeProvider } from "./context/ThemeContext";
+import ThemeSwitcher from "./components/ThemeSwitcher";
+
 import ListPage from "./pages/ListPage";
 import ListCreatePage from "./pages/ListCreatePage";
 import ListManagePage from "./pages/ListManagePage";
 
 function App() {
   return (
-    <Router>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col">
-        {/* Cabeçalho */}
-        <header className="bg-green-600 dark:bg-green-700 text-white p-4 shadow-md">
-          <nav className="container mx-auto flex flex-wrap gap-4">
-            <Link to="/" className="font-bold hover:underline">Home</Link>
-            <Link to="/list" className="hover:underline">Lista</Link>
-            <Link to="/create" className="hover:underline">Criar</Link>
-            <Link to="/manage" className="hover:underline">Gerenciar</Link>
-          </nav>
-        </header>
+    <ThemeProvider>
+      <BrowserRouter>
+        <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+          {/* Header fixo */}
+          <header className="flex justify-between items-center px-6 py-4 bg-white dark:bg-gray-800 shadow sticky top-0 z-50">
+            <h1 className="text-xl font-bold">My React Components</h1>
+            <div className="flex items-center gap-4">
+              <Link to="/" className="hover:underline">
+                Home
+              </Link>
+              <Link to="/list" className="hover:underline">
+                Listas
+              </Link>
+              <Link to="/list/create" className="hover:underline">
+                Criar Lista
+              </Link>
+              <Link to="/list/manage" className="hover:underline">
+                Gerenciar
+              </Link>
+              <ThemeSwitcher />
+            </div>
+          </header>
 
-        {/* Conteúdo principal */}
-        <main className="flex-grow container mx-auto p-6">
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <div className="flex flex-col items-center justify-center h-[70vh]">
-                  <h1 className="text-5xl font-extrabold text-green-600 dark:text-green-400 mb-4">
-                    Tailwind funcionando 🚀
-                  </h1>
-                  <p className="text-lg text-gray-700 dark:text-gray-300">
-                    Use a navegação acima para explorar os exemplos de listas.
-                  </p>
-                </div>
-              }
-            />
-            <Route path="/list" element={<ListPage />} />
-            <Route path="/create" element={<ListCreatePage />} />
-            <Route path="/manage" element={<ListManagePage />} />
-          </Routes>
-        </main>
-
-        {/* Rodapé */}
-        <footer className="bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 p-4 text-center">
-          © {new Date().getFullYear()} My React Components
-        </footer>
-      </div>
-    </Router>
+          {/* Conteúdo principal */}
+          <main className="p-6">
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <div className="flex flex-col items-center justify-center h-[70vh] text-center">
+                    <h2 className="text-4xl font-bold mb-4">
+                      Bem-vindo 🚀
+                    </h2>
+                    <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
+                      Explore, crie e gerencie suas listas com estilo!
+                    </p>
+                    <div className="flex gap-4">
+                      <Link
+                        to="/list"
+                        className="px-6 py-3 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
+                      >
+                        Ver Listas
+                      </Link>
+                      <Link
+                        to="/list/create"
+                        className="px-6 py-3 rounded-lg bg-green-600 text-white font-semibold hover:bg-green-700 transition"
+                      >
+                        Criar Nova Lista
+                      </Link>
+                    </div>
+                  </div>
+                }
+              />
+              <Route path="/list" element={<ListPage />} />
+              <Route path="/list/create" element={<ListCreatePage />} />
+              <Route path="/list/manage" element={<ListManagePage />} />
+            </Routes>
+          </main>
+        </div>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 

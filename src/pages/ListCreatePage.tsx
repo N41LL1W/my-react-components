@@ -1,59 +1,117 @@
-import React, { useState } from "react";
-import { v4 as uuidv4 } from "uuid";
+import React, { useContext, useState } from "react";
+import { ThemeContext } from "../context/ThemeContext";
 import List from "../components/List/List";
 import type { BaseListItem } from "../components/List/List";
-import { Button } from "../components/ui/Button";
-import { Input } from "../components/ui/Input";
 
+// Tipo dos itens
 interface MyListItem extends BaseListItem {
-  name: string;
-  description?: string;
+  nome: string;
+  categoria: string;
 }
 
-const initialItems: MyListItem[] = [
-  { id: uuidv4(), name: "Primeiro Item", description: "Este é um item inicial." },
-  { id: uuidv4(), name: "Segundo Item", description: "Outro item para começar." },
-];
+export default function ListCreatePage() {
+  const { theme, toggleTheme } = useContext(ThemeContext);
 
-function ListCreatePage() {
-  const [currentListItems, setCurrentListItems] = useState<MyListItem[]>(initialItems);
-  const [newItemName, setNewItemName] = useState("");
-  const [newItemDescription, setNewItemDescription] = useState("");
+  // Estado para os itens e campos do formulário
+  const [items, setItems] = useState<MyListItem[]>([]);
+  const [nome, setNome] = useState("");
+  const [categoria, setCategoria] = useState("");
 
-  const handleAddItem = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newItemName.trim()) return;
+  // Função para adicionar item
+  const handleAddItem = () => {
+    if (!nome.trim() || !categoria.trim()) {
+      alert("Preencha todos os campos antes de adicionar um item.");
+      return;
+    }
 
-    const newItem: MyListItem = { id: uuidv4(), name: newItemName, description: newItemDescription };
-    setCurrentListItems((prev) => [...prev, newItem]);
-    setNewItemName("");
-    setNewItemDescription("");
+    const newItem: MyListItem = {
+      id: String(Date.now()),
+      nome,
+      categoria,
+    };
+
+    setItems((prev) => [...prev, newItem]);
+    setNome("");
+    setCategoria("");
+  };
+
+  // Ação ao clicar em um item
+  const handleItemClick = (item: MyListItem) => {
+    alert(`Item selecionado: ${item.nome}`);
   };
 
   return (
-    <div className="p-6 max-w-md mx-auto space-y-6">
-      <h1 className="text-2xl font-bold">Criar Novo Item para a Lista</h1>
+    <div
+      className={`min-h-screen p-8 transition-colors duration-300 ${
+        theme === "dark"
+          ? "bg-gray-900 text-gray-100"
+          : "bg-gray-100 text-gray-900"
+      }`}
+    >
+      {/* Cabeçalho */}
+      <header className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
+        <h1 className="text-3xl font-bold">Criar Lista</h1>
 
-      <form onSubmit={handleAddItem} className="space-y-4 p-4 border rounded-lg">
-        <Input label="Nome do Item" placeholder="Ex: Tarefa Importante" value={newItemName} onChange={(e) => setNewItemName(e.target.value)} required />
-        <Input label="Descrição" placeholder="Detalhes do item..." value={newItemDescription} onChange={(e) => setNewItemDescription(e.target.value)} />
-        <Button type="submit" variant="success" className="w-full">Adicionar Item</Button>
-      </form>
+        <button
+          onClick={toggleTheme}
+          className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition"
+        >
+          Alternar para modo {theme === "light" ? "escuro 🌙" : "claro ☀️"}
+        </button>
+      </header>
 
-      <h2 className="text-xl font-semibold">Lista Atual</h2>
-      <List
-        title="Itens Criados"
-        items={currentListItems}
-        renderItem={(item) => (
-          <div>
-            <strong>{item.name}</strong>
-            {item.description && <p className="text-sm text-gray-600 dark:text-gray-300">{item.description}</p>}
-          </div>
-        )}
-        emptyMessage="Comece a adicionar itens usando o formulário acima!"
-      />
+      {/* Formulário de criação */}
+      <section
+        className={`mb-8 p-6 rounded-xl shadow-md border ${
+          theme === "dark"
+            ? "bg-gray-800 border-gray-700"
+            : "bg-white border-gray-200"
+        }`}
+      >
+        <h2 className="text-xl font-semibold mb-4">Adicionar novo item</h2>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <input
+            type="text"
+            value={nome}
+            onChange={(e) => setNome(e.target.value)}
+            placeholder="Nome do item"
+            className="p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none bg-transparent"
+          />
+          <input
+            type="text"
+            value={categoria}
+            onChange={(e) => setCategoria(e.target.value)}
+            placeholder="Categoria"
+            className="p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none bg-transparent"
+          />
+          <button
+            onClick={handleAddItem}
+            className="bg-green-600 hover:bg-green-700 text-white font-medium rounded-md px-4 py-2 transition"
+          >
+            Adicionar
+          </button>
+        </div>
+      </section>
+
+      {/* Lista de pré-visualização */}
+      <section>
+        <List<MyListItem>
+          title="Itens adicionados"
+          items={items}
+          renderItem={(item) => (
+            <div>
+              <p className="font-semibold">{item.nome}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {item.categoria}
+              </p>
+            </div>
+          )}
+          onItemClick={handleItemClick}
+          emptyMessage="Nenhum item adicionado ainda."
+          filterable
+        />
+      </section>
     </div>
   );
 }
-
-export default ListCreatePage;
