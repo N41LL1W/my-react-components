@@ -1,106 +1,73 @@
-import React, { useContext, useState, useMemo } from "react";
-import { ThemeContext } from "../context/ThemeContext";
+// src/pages/ListPage.tsx
+import { useState } from "react";
 import List from "../components/List/List";
 import type { BaseListItem } from "../components/List/List";
+import { useTheme } from "../context/ThemeContext";
 
-// Define a estrutura de cada item
-interface MyListItem extends BaseListItem {
-  nome: string;
-  categoria: string;
+// Tipo do item da lista
+export interface MyListItem extends BaseListItem {
+  name: string;
 }
 
-// Dados de exemplo
-const mockData: MyListItem[] = [
-  { id: "1", nome: "Computador", categoria: "Eletrônicos" },
-  { id: "2", nome: "Caderno", categoria: "Papelaria" },
-  { id: "3", nome: "Mesa", categoria: "Móveis" },
-  { id: "4", nome: "Caneta", categoria: "Papelaria" },
-  { id: "5", nome: "Mouse", categoria: "Eletrônicos" },
-];
-
 export default function ListPage() {
-  const { theme, toggleTheme } = useContext(ThemeContext);
+  const { theme, toggleTheme } = useTheme();
 
-  // Estado para filtro e ordenação
+  const [items, setItems] = useState<MyListItem[]>([
+    { id: "1", name: "Item A" },
+    { id: "2", name: "Item B" },
+    { id: "3", name: "Item C" },
+  ]);
+
   const [filterValue, setFilterValue] = useState("");
-  const [sortBy, setSortBy] = useState<keyof MyListItem>("nome");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-
-  // Filtro e ordenação otimizados com useMemo
-  const filteredItems = useMemo(() => {
-    let result = [...mockData];
-
-    if (filterValue) {
-      result = result.filter(
-        (item) =>
-          item.nome.toLowerCase().includes(filterValue.toLowerCase()) ||
-          item.categoria.toLowerCase().includes(filterValue.toLowerCase())
-      );
-    }
-
-    result.sort((a, b) => {
-      const valA = String(a[sortBy]).toLowerCase();
-      const valB = String(b[sortBy]).toLowerCase();
-
-      if (valA < valB) return sortDirection === "asc" ? -1 : 1;
-      if (valA > valB) return sortDirection === "asc" ? 1 : -1;
-      return 0;
-    });
-
-    return result;
-  }, [filterValue, sortBy, sortDirection]);
-
-  // Manipuladores
-  const handleSort = (key: keyof MyListItem, direction: "asc" | "desc") => {
-    setSortBy(key);
-    setSortDirection(direction);
-  };
-
-  const handleFilterChange = (value: string) => {
-    setFilterValue(value);
-  };
+  const [sortBy, setSortBy] = useState<keyof MyListItem>("name");
 
   const handleItemClick = (item: MyListItem) => {
-    alert(`Você clicou em: ${item.nome}`);
+    alert(`Você clicou em: ${item.name}`);
   };
 
+  // Filtra itens
+  const filteredItems = items.filter((item) =>
+    item.name.toLowerCase().includes(filterValue.toLowerCase())
+  );
+
+  // Ordena itens
+  const sortedItems = [...filteredItems].sort((a, b) => {
+    if (a[sortBy] < b[sortBy]) return sortDirection === "asc" ? -1 : 1;
+    if (a[sortBy] > b[sortBy]) return sortDirection === "asc" ? 1 : -1;
+    return 0;
+  });
+
   return (
-    <div
-      className={`min-h-screen p-8 transition-colors duration-300 ${
-        theme === "dark" ? "bg-gray-900 text-gray-100" : "bg-gray-100 text-gray-900"
-      }`}
-    >
-      {/* Cabeçalho */}
-      <header className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
-        <h1 className="text-3xl font-bold">Lista de Itens</h1>
+    <div className="min-h-screen p-6 bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+      <h1 className="text-3xl font-bold mb-6">Minha Lista</h1>
 
-        <button
-          onClick={toggleTheme}
-          className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition"
-        >
-          Alternar para modo {theme === "light" ? "escuro 🌙" : "claro ☀️"}
-        </button>
-      </header>
-
-      {/* Lista */}
-      <List<MyListItem>
-        title="Itens disponíveis"
-        items={filteredItems}
-        renderItem={(item) => (
-          <div>
-            <p className="font-semibold">{item.nome}</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{item.categoria}</p>
-          </div>
-        )}
+      <List
+        title="Itens"
+        items={sortedItems}
+        renderItem={(item) => <span>{item.name}</span>}
         onItemClick={handleItemClick}
+        emptyMessage="Nenhum item disponível."
+        filterable
+        onFilterChange={setFilterValue}
+        currentFilterValue={filterValue}
         sortable
-        onSort={handleSort}
+        onSort={(key, dir) => {
+          setSortBy(key);
+          setSortDirection(dir);
+        }}
         currentSortBy={sortBy}
         currentSortDirection={sortDirection}
-        filterable
-        onFilterChange={handleFilterChange}
-        currentFilterValue={filterValue}
       />
+
+      <div className="mt-6">
+        <button
+          onClick={toggleTheme}
+          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+        >
+          Alternar Tema (Atual: {theme})
+        </button>
+      </div>
     </div>
   );
 }
