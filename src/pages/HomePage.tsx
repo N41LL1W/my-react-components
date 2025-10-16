@@ -1,22 +1,11 @@
+import { ThemeToggle } from "../components/ui/ThemeToggle";
 import { Link } from "react-router-dom";
-import { useTheme } from "../context/ThemeContext";
-import { ThemeSwitcher } from "../components/ThemeSwitcher";
 
 export default function HomePage() {
-  const { theme } = useTheme();
-
   return (
-    <div
-      className={`min-h-screen flex flex-col items-center justify-center transition-colors duration-300 ${
-        theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"
-      }`}
-    >
-      <h1 className="text-4xl font-bold mb-6">My React Components</h1>
-
-      <p className="text-lg mb-8 text-center max-w-md">
-        Biblioteca de componentes reutilizáveis com suporte a tema claro, escuro e sistema.
-      </p>
-
+    <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300 gap-6">
+      <h1 className="text-4xl font-bold">🌗 Tema Global Funcionando</h1>
+      <ThemeToggle />
       <div className="flex gap-4">
         <Link
           to="/list"
@@ -36,10 +25,6 @@ export default function HomePage() {
         >
           Gerenciar Listas
         </Link>
-      </div>
-
-      <div className="mt-10">
-        <ThemeSwitcher />
       </div>
     </div>
   );
