@@ -1,43 +1,63 @@
-# My React Components
+# 🌗 My React Components — Tema com Modo Escuro e Modo do Sistema
 
-Biblioteca de componentes React reutilizáveis com suporte a **tema claro/escuro** e integração com **Tailwind CSS v4**.
+Este projeto é uma base moderna para componentes React, utilizando **Vite**, **React 18+** e **Tailwind CSS v4**, com suporte completo a **tema claro**, **escuro** e **automático (modo do sistema)**.
 
-## Tecnologias
+---
 
-- React 18+
-- TypeScript
-- Vite
-- Tailwind CSS v4
-- PostCSS
-- React Router
-- Vercel (deploy)
+## 🚀 Tecnologias
 
-## Funcionalidades
+- ⚛️ React + TypeScript  
+- 💨 Tailwind CSS v4  
+- ⚙️ Vite  
+- 💾 LocalStorage (para salvar o tema)  
+- 💻 Detecção automática do modo do sistema  
 
-- Componente `List`:
-  - Filtragem e ordenação
-  - Estado de carregamento e lista vazia
-  - Suporte a listas grandes
-- Suporte a tema:
-  - Claro
-  - Escuro
-  - Detecta tema do sistema
-- HomePage interativa com links para:
-  - Visualizar listas
-  - Criar listas
-  - Gerenciar listas
+---
 
-## Scripts
+## 🧩 Estrutura principal
 
-```bash
+src/
+├── components/
+│ └── ui/
+│ └── DarkModeToggle.tsx
+├── pages/
+│ └── HomePage.tsx
+├── index.css
+├── App.tsx
+└── main.tsx
+
+yaml
+Copiar código
+
+---
+
+## 🎨 Como o tema funciona
+
+- O arquivo `index.css` define o modo escuro com a nova sintaxe do Tailwind v4:
+
+```css
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+O componente DarkModeToggle.tsx:
+
+Alterna entre os temas Claro, Escuro e Sistema.
+
+Salva a preferência no localStorage.
+
+Monitora automaticamente o tema do sistema (Windows, macOS, etc).
+
+💻 Scripts úteis
+bash
+Copiar código
 # Instalar dependências
 npm install
 
-# Rodar projeto em desenvolvimento
+# Rodar localmente
 npm run dev
 
-# Build para produção
+# Fazer build de produção
 npm run build
 
-# Rodar preview local da build
+# Pré-visualizar o build
 npm run preview
