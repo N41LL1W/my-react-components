@@ -1,14 +1,18 @@
 import { useEffect, useState } from "react";
 
+// Tipos de tema possíveis
+type ThemeType = "light" | "dark" | "system";
+
 const DarkModeToggle = () => {
-  const [theme, setTheme] = useState<"light" | "dark" | "system">(() => {
-    return (localStorage.getItem("theme") as "light" | "dark" | "system") || "system";
+  // Estado do tema inicial, carregado do localStorage ou sistema
+  const [theme, setTheme] = useState<ThemeType>(() => {
+    return (localStorage.getItem("theme") as ThemeType) || "system";
   });
 
   useEffect(() => {
     const root = document.documentElement;
 
-    const applyTheme = (themeValue: "light" | "dark" | "system") => {
+    const applyTheme = (themeValue: ThemeType) => {
       const isSystemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
       const finalTheme = themeValue === "system" ? (isSystemDark ? "dark" : "light") : themeValue;
 
@@ -21,7 +25,7 @@ const DarkModeToggle = () => {
 
     applyTheme(theme);
 
-    // atualiza automaticamente se o tema do sistema mudar
+    // Atualiza automaticamente se o sistema mudar de tema
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     const handleSystemChange = () => {
       if (theme === "system") applyTheme("system");
@@ -35,6 +39,7 @@ const DarkModeToggle = () => {
 
   return (
     <div className="flex flex-col items-center gap-4">
+      {/* Botões de alternância */}
       <div className="flex gap-2">
         <button
           onClick={() => setTheme("light")}
@@ -70,6 +75,7 @@ const DarkModeToggle = () => {
         </button>
       </div>
 
+      {/* Exibe o tema atual */}
       <p className="text-sm opacity-70">
         Tema atual: <span className="font-semibold">{theme}</span>
       </p>

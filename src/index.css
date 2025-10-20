@@ -1,13 +1,85 @@
+/* 
+──────────────────────────────────────────────
+🌀 IMPORTAÇÃO PRINCIPAL DO TAILWIND
+──────────────────────────────────────────────
+*/
+
+/* 
+@import "tailwindcss";
+→ Importa o núcleo do Tailwind CSS v4.
+
+Esse comando carrega automaticamente as camadas de estilos base, 
+componentes e utilitários fornecidos pelo Tailwind. 
+Ou seja, aqui o Tailwind injeta suas classes como bg-gray-900, text-white, flex, etc.
+*/
 @import "tailwindcss";
 
+
+/* 
+──────────────────────────────────────────────
+🌗 VARIANTE PERSONALIZADA PARA MODO ESCURO
+──────────────────────────────────────────────
+*/
+
+/* 
+@custom-variant dark (&:where(.dark, .dark *));
+→ Define uma variante personalizada chamada "dark".
+
+O Tailwind v4 mudou a forma como o modo escuro é tratado. 
+Antes, você usava `darkMode: "class"` no tailwind.config.js. 
+Agora, você pode criar variantes customizadas com o @custom-variant.
+
+Essa linha diz ao Tailwind:
+🧠 "Considere qualquer elemento dentro de uma tag com a classe .dark 
+ou seus descendentes como estando no modo escuro."
+
+Isso significa:
+- Quando <html> ou <body> tiverem a classe .dark, 
+  todas as regras `dark:` do Tailwind entram em ação.
+*/
 @custom-variant dark (&:where(.dark, .dark *));
 
+
+/* 
+──────────────────────────────────────────────
+🎨 ESTILOS BASE DO PROJETO
+──────────────────────────────────────────────
+*/
+
+/* 
+@layer base { ... }
+→ Cria uma camada de estilos base, que o Tailwind reconhece 
+como parte da sua hierarquia de estilos CSS.
+Você pode usá-la para definir estilos padrões globais (como fontes, cores, etc.).
+*/
 @layer base {
+
+  /* 
+  Estilos para o HTML quando estiver no modo CLARO.
+  🧩 Aqui usamos o utilitário @apply para aplicar classes Tailwind dentro do CSS.
+  */
   html {
+    /* 
+    @apply bg-white text-gray-900 transition-colors duration-300;
+    → Define:
+      - Fundo branco (modo claro)
+      - Texto cinza escuro
+      - Transição suave entre temas em 300ms (para evitar mudança brusca de cor)
+    */
     @apply bg-white text-gray-900 transition-colors duration-300;
   }
 
+  /* 
+  Estilos para o HTML quando estiver no modo ESCURO.
+  ⚙️ A classe ".dark" é adicionada dinamicamente pelo JavaScript.
+  */
   html.dark {
+    /* 
+    @apply bg-gray-900 text-gray-100;
+    → Define:
+      - Fundo cinza escuro (quase preto)
+      - Texto cinza claro (para contraste)
+    */
     @apply bg-gray-900 text-gray-100;
   }
 }

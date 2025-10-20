@@ -1,63 +1,59 @@
-# 🌗 My React Components — Tema com Modo Escuro e Modo do Sistema
+# My React Components
 
-Este projeto é uma base moderna para componentes React, utilizando **Vite**, **React 18+** e **Tailwind CSS v4**, com suporte completo a **tema claro**, **escuro** e **automático (modo do sistema)**.
+Projeto React + Vite + Tailwind CSS v4 com suporte completo a tema claro, escuro e sistema.
 
----
+## Funcionalidades
 
-## 🚀 Tecnologias
+- Alternância de tema (claro, escuro, sistema) com persistência no `localStorage`.
+- Layout responsivo com Navbar e suporte a mobile menu.
+- Componentes UI reutilizáveis:
+  - `Button` com variantes (default, primary, success, danger) e tamanhos (sm, md, lg)
+  - `Input` com label opcional e suporte a dark mode
+  - `DarkModeToggle` para alternância de tema
+- Suporte a Tailwind v4 com dark mode configurado via `@custom-variant`.
 
-- ⚛️ React + TypeScript  
-- 💨 Tailwind CSS v4  
-- ⚙️ Vite  
-- 💾 LocalStorage (para salvar o tema)  
-- 💻 Detecção automática do modo do sistema  
-
----
-
-## 🧩 Estrutura principal
+## Estrutura do Projeto
 
 src/
-├── components/
-│ └── ui/
-│ └── DarkModeToggle.tsx
-├── pages/
-│ └── HomePage.tsx
-├── index.css
-├── App.tsx
-└── main.tsx
+├─ components/
+│ ├─ layout/
+│ │ └─ Header.tsx
+│ └─ ui/
+│ ├─ Button.tsx
+│ ├─ Input.tsx
+│ └─ DarkModeToggle.tsx
+├─ pages/
+│ └─ HomePage.tsx
+├─ App.tsx
+├─ main.tsx
+└─ index.css
 
-yaml
+markdown
 Copiar código
 
----
+## Scripts
 
-## 🎨 Como o tema funciona
+- `npm install` → instala dependências
+- `npm run dev` → inicia servidor de desenvolvimento Vite
+- `npm run build` → build de produção
+- `npm run preview` → preview local do build de produção
 
-- O arquivo `index.css` define o modo escuro com a nova sintaxe do Tailwind v4:
+## Tailwind CSS
+
+- Dark mode configurado via classe `.dark`
+- Arquivo `index.css` contém configuração global:
 
 ```css
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
-O componente DarkModeToggle.tsx:
 
-Alterna entre os temas Claro, Escuro e Sistema.
+@layer base {
+  html {
+    @apply bg-white text-gray-900 transition-colors duration-300;
+  }
 
-Salva a preferência no localStorage.
-
-Monitora automaticamente o tema do sistema (Windows, macOS, etc).
-
-💻 Scripts úteis
-bash
-Copiar código
-# Instalar dependências
-npm install
-
-# Rodar localmente
-npm run dev
-
-# Fazer build de produção
-npm run build
-
-# Pré-visualizar o build
-npm run preview
+  html.dark {
+    @apply bg-gray-900 text-gray-100;
+  }
+}
