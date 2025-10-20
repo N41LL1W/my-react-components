@@ -1,59 +1,96 @@
 # My React Components
 
-Projeto React + Vite + Tailwind CSS v4 com suporte completo a tema claro, escuro e sistema.
+Projeto React + Vite + Tailwind CSS v4, com suporte completo a **tema claro, escuro e sistema**, além de componentes UI reutilizáveis.
 
-## Funcionalidades
+---
 
-- Alternância de tema (claro, escuro, sistema) com persistência no `localStorage`.
-- Layout responsivo com Navbar e suporte a mobile menu.
-- Componentes UI reutilizáveis:
-  - `Button` com variantes (default, primary, success, danger) e tamanhos (sm, md, lg)
-  - `Input` com label opcional e suporte a dark mode
-  - `DarkModeToggle` para alternância de tema
-- Suporte a Tailwind v4 com dark mode configurado via `@custom-variant`.
+## 🚀 Tecnologias Utilizadas
 
-## Estrutura do Projeto
+- **React 18**
+- **Vite**
+- **TypeScript**
+- **Tailwind CSS v4**
+- **clsx** (para manipulação condicional de classes)
+- **React Router v6**
+
+---
+
+## 🏗 Estrutura de Pastas
 
 src/
-├─ components/
-│ ├─ layout/
-│ │ └─ Header.tsx
-│ └─ ui/
-│ ├─ Button.tsx
-│ ├─ Input.tsx
-│ └─ DarkModeToggle.tsx
-├─ pages/
-│ └─ HomePage.tsx
-├─ App.tsx
-├─ main.tsx
-└─ index.css
+├─ components/ # Componentes reutilizáveis
+│ ├─ layout/ # Componentes de layout (Navbar, Header)
+│ ├─ ui/ # Componentes UI (Button, Input, Card, Alert, Modal, DarkModeToggle)
+├─ context/ # Contextos do React (tema, etc.)
+├─ hooks/ # Hooks personalizados (se houver)
+├─ pages/ # Páginas da aplicação
+├─ App.tsx # Componente raiz
+├─ main.tsx # Ponto de entrada do React
+├─ index.css # Estilos globais e configuração Tailwind
 
 markdown
 Copiar código
 
-## Scripts
+---
 
-- `npm install` → instala dependências
-- `npm run dev` → inicia servidor de desenvolvimento Vite
-- `npm run build` → build de produção
-- `npm run preview` → preview local do build de produção
+## 🧩 Componentes Criados
 
-## Tailwind CSS
+### Layout
 
-- Dark mode configurado via classe `.dark`
-- Arquivo `index.css` contém configuração global:
+- **Navbar/Header**
+  - Barra de navegação fixa.
+  - Botão de menu para mobile.
+  - Alternância de tema (claro, escuro, sistema).
 
-```css
-@import "tailwindcss";
+### UI
 
-@custom-variant dark (&:where(.dark, .dark *));
+- **Button**
+  - Variantes: `default`, `primary`, `success`, `danger`.
+  - Tamanhos: `sm`, `md`, `lg`.
+  - `fullWidth` opcional.
+  
+- **Input**
+  - Input com label opcional.
+  - Full width opcional.
+  
+- **Card**
+  - Título, corpo e footer personalizáveis.
+  
+- **Alert**
+  - Tipos: `info`, `success`, `warning`, `error`.
+  - Suporta fechamento com `onClose`.
+  
+- **Modal**
+  - Janela modal com título, corpo e footer.
+  - Controle de abertura via estado.
+  
+- **DarkModeToggle**
+  - Alterna entre `light`, `dark` e `system`.
+  - Armazena preferência no `localStorage`.
+  - Detecta mudanças no tema do sistema.
 
-@layer base {
-  html {
-    @apply bg-white text-gray-900 transition-colors duration-300;
-  }
+---
 
-  html.dark {
-    @apply bg-gray-900 text-gray-100;
-  }
-}
+## ⚡ Funcionalidades
+
+- Suporte a **tema claro/escuro/sistema** em toda a aplicação.
+- Layout responsivo com Tailwind CSS.
+- Componentes reutilizáveis para facilitar novas páginas.
+- Transições suaves entre temas.
+
+---
+
+## 🛠 Scripts Disponíveis
+
+```bash
+# Instalar dependências
+npm install
+
+# Rodar projeto em modo desenvolvimento
+npm run dev
+
+# Build para produção
+npm run build
+
+# Rodar vercel localmente (se tiver CLI Vercel)
+vercel dev
