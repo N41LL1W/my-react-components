@@ -1,116 +1,84 @@
-# ⚛️ My React Components
+README - MyReactComponents
+🔹 Visão Geral
 
-Projeto desenvolvido com **React + Vite + TypeScript + TailwindCSS**, com foco em **componentização**, **tema dinâmico (claro/escuro)** e **boas práticas de interface**.
+Este projeto é um exemplo completo de React + Vite + Tailwind v4 com suporte a:
 
----
+Tema claro, escuro e modo do sistema
 
-## 🚀 Funcionalidades Principais
+Componente reutilizáveis:
 
-✅ Interface moderna com **modo claro/escuro automático**  
-✅ Sistema de **componentes reutilizáveis** (`Card`, `Button`, `Alert`, `Modal`)  
-✅ Página inicial interativa com modais e alertas  
-✅ Página de **listas dinâmicas** (`ListPage`) com formulário integrado (`ListForm`)  
-✅ Totalmente documentado com comentários padronizados e claros
+Button
 
----
+Input
 
-## 🧩 Estrutura de Pastas
+Card
 
+Alert
+
+Modal
+
+Navegação entre páginas:
+
+Home
+
+Listas (criação de listas e itens)
+
+Responsividade e design moderno com TailwindCSS
+
+🔹 Estrutura do Projeto
 src/
-├── components/
-│ ├── layout/
-│ │ ├── Navbar.tsx
-│ │ └── Header.tsx
-│ ├── lists/
-│ │ └── ListForm.tsx
-│ └── ui/
-│ ├── Button.tsx
-│ ├── Card.tsx
-│ ├── Modal.tsx
-│ └── Alert.tsx
-├── pages/
-│ ├── HomePage.tsx
-│ └── lists/
-│ └── ListPage.tsx
-└── main.tsx
+├─ components/
+│  ├─ layout/
+│  │  └─ Header.tsx        # Navbar com toggle de tema
+│  ├─ ui/
+│  │  ├─ Button.tsx
+│  │  ├─ Input.tsx
+│  │  ├─ Card.tsx
+│  │  ├─ Alert.tsx
+│  │  └─ Modal.tsx
+│  └─ lists/
+│     └─ ListForm.tsx
+├─ pages/
+│  ├─ HomePage.tsx
+│  └─ lists/
+│     └─ ListPage.tsx
+├─ App.tsx
+├─ main.tsx
+└─ index.css
 
-yaml
-Copiar código
+🔹 Funcionalidades Atuais
+HomePage
 
----
+Exibe Navbar unificada
 
-## ⚙️ Tecnologias Utilizadas
+Exemplo de Card
 
-| Categoria | Ferramenta |
-|------------|-------------|
-| Framework | [React](https://react.dev) |
-| Build Tool | [Vite](https://vitejs.dev) |
-| Linguagem | TypeScript |
-| Estilo | [Tailwind CSS](https://tailwindcss.com) |
-| UI Components | Customizados (Button, Card, Modal, Alert) |
+Botões para abrir modal e mostrar alertas (info, sucesso, aviso, erro)
 
----
+Texto de apresentação
 
-## 💡 Como Executar o Projeto
+ListPage
 
-```bash
-# Instalar dependências
-npm install
+Criar múltiplas listas
 
-# Rodar o servidor de desenvolvimento
-npm run dev
+Adicionar itens dentro de cada lista
 
-# Acessar no navegador
-http://localhost:5173
-🧠 Principais Componentes
-🔹 HomePage
-Página inicial que demonstra:
+Alertas de sucesso
 
-Uso de Card, Modal e Alert
+Formulário de criação de lista/itens com largura centralizada
 
-Sistema de botões com feedback visual
+Layout responsivo
 
-Navegação direta para a página de listas (ListPage)
+Componentes Reutilizáveis
 
-🔹 ListPage
-Gerenciador de itens simples (em memória):
+Button: variantes primary, success, danger, default
 
-Adiciona novos itens via ListForm
+Input: campos de texto com label
 
-Exibe mensagens de sucesso
+Card: container com título, conteúdo e footer
 
-Apresenta cada item em um Card elegante
+Alert: diferentes tipos de alerta (info, success, warning, error)
 
-🔹 ListForm
-Formulário reutilizável:
+Modal: janela modal com título e conteúdo
 
-Campos controlados (name, description)
-
-Validação simples
-
-Botões de ação (Salvar e Cancelar)
-
-🧱 Boas Práticas Aplicadas
-Comentários padronizados (🔹, 🔸, 🧠, etc.)
-
-Componentes independentes e reutilizáveis
-
-Padrão Functional Components + Hooks
-
-Código tipado com TypeScript
-
-Layout responsivo com TailwindCSS
-
-🌙 Tema Dinâmico
-O projeto adapta automaticamente o tema:
-
-🌞 Claro
-
-🌙 Escuro
-
-🖥️ Automático (baseado no sistema)
-
-🧭 Navegação
-Página	Caminho	Descrição
-Home	/	Demonstração dos componentes e alertas
-Lista	/list	Gerenciamento de itens (ListPage + ListForm)
+Header: navbar responsiva com alternância de tema

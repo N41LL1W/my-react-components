@@ -1,25 +1,12 @@
 // ------------------------------------------------------------
 // 📄 ListPage.tsx
 // ------------------------------------------------------------
-// Página principal do gerenciador de listas e itens.
-// Cada lista contém:
-//   - Nome e descrição
-//   - Vários itens (com nome e descrição)
-//   - Opções para editar e excluir
-//
-// ⚙️ Recursos atuais:
-//  - Criar múltiplas listas
-//  - Adicionar e remover itens dentro de cada lista
-//  - Editar listas e itens
-//  - Persistência automática via LocalStorage
-//
-// 🧱 Próximos passos possíveis:
-//  - Filtro e busca
-//  - Organização por tags
+// Agora com suporte completo para CRUD (Create, Read, Update, Delete)
+// de listas e itens dentro do mesmo componente.
 // ------------------------------------------------------------
 
-import { useState, useEffect } from "react";
-import Header from "../../components/layout/Header";
+import { useState } from "react";
+import Navbar from "../../components/layout/Navbar";
 import { Button } from "../../components/ui/Button";
 import Card from "../../components/ui/Card";
 import Alert from "../../components/ui/Alert";
@@ -40,39 +27,33 @@ interface List {
   items: Item[];
 }
 
+// ------------------------------------------------------------
+// 🔸 Componente principal
+// ------------------------------------------------------------
 export default function ListPage() {
-  // ------------------------------------------------------------
-  // 🔸 Estados principais
-  // ------------------------------------------------------------
+  // Estado com todas as listas criadas
   const [lists, setLists] = useState<List[]>([]);
+
+  // Controla qual lista está ativa (para adicionar item)
   const [activeListId, setActiveListId] = useState<number | null>(null);
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
+
+  // Controla qual lista está sendo editada
   const [editingListId, setEditingListId] = useState<number | null>(null);
 
-  // ------------------------------------------------------------
-  // 🔹 Carrega listas do LocalStorage ao iniciar
-  // ------------------------------------------------------------
-  useEffect(() => {
-    const stored = localStorage.getItem("my-lists-data");
-    if (stored) {
-      try {
-        setLists(JSON.parse(stored));
-      } catch {
-        console.error("Erro ao carregar listas salvas.");
-      }
-    }
-  }, []);
+  // Controla qual item está sendo editado (índice dentro da lista)
+  const [editingItemIndex, setEditingItemIndex] = useState<{
+    listId: number;
+    index: number;
+  } | null>(null);
+
+  // Exibição do formulário principal
+  const [isFormOpen, setIsFormOpen] = useState(false);
+
+  // Mensagem de feedback (usada nos Alerts)
+  const [message, setMessage] = useState<string | null>(null);
 
   // ------------------------------------------------------------
-  // 🔹 Salva listas sempre que houver alteração
-  // ------------------------------------------------------------
-  useEffect(() => {
-    localStorage.setItem("my-lists-data", JSON.stringify(lists));
-  }, [lists]);
-
-  // ------------------------------------------------------------
-  // 🔹 Cria uma nova lista
+  // 🟢 Criar nova lista
   // ------------------------------------------------------------
   const handleAddList = (data: { name: string; description: string }) => {
     const newList: List = {
@@ -81,13 +62,40 @@ export default function ListPage() {
       description: data.description,
       items: [],
     };
+
     setLists((prev) => [...prev, newList]);
     setIsFormOpen(false);
-    setMessage(`✅ Lista "${data.name}" criada!`);
+    setMessage(`✅ Lista "${data.name}" criada com sucesso!`);
   };
 
   // ------------------------------------------------------------
-  // 🔹 Adiciona item a uma lista específica
+  // ✏️ Editar lista existente
+  // ------------------------------------------------------------
+  const handleEditList = (data: { name: string; description: string }) => {
+    if (editingListId === null) return;
+
+    setLists((prevLists) =>
+      prevLists.map((list) =>
+        list.id === editingListId
+          ? { ...list, name: data.name, description: data.description }
+          : list
+      )
+    );
+
+    setEditingListId(null);
+    setMessage(`✏️ Lista atualizada com sucesso!`);
+  };
+
+  // ------------------------------------------------------------
+  // ❌ Excluir lista
+  // ------------------------------------------------------------
+  const handleDeleteList = (id: number) => {
+    setLists((prevLists) => prevLists.filter((list) => list.id !== id));
+    setMessage(`🗑️ Lista removida!`);
+  };
+
+  // ------------------------------------------------------------
+  // 🟢 Adicionar item dentro de uma lista
   // ------------------------------------------------------------
   const handleAddItemToList = (listId: number, item: Item) => {
     setLists((prevLists) =>
@@ -97,92 +105,73 @@ export default function ListPage() {
           : list
       )
     );
+
     setActiveListId(null);
     setMessage(`📝 Item "${item.name}" adicionado à lista!`);
   };
 
   // ------------------------------------------------------------
-  // 🔹 Remove uma lista inteira
+  // ✏️ Editar item dentro da lista
   // ------------------------------------------------------------
-  const handleDeleteList = (listId: number) => {
-    const listName = lists.find((l) => l.id === listId)?.name;
-    if (window.confirm(`Excluir a lista "${listName}"?`)) {
-      setLists((prev) => prev.filter((list) => list.id !== listId));
-      setMessage(`🗑️ Lista "${listName}" removida.`);
-    }
-  };
+  const handleEditItem = (data: { name: string; description: string }) => {
+    if (!editingItemIndex) return;
 
-  // ------------------------------------------------------------
-  // 🔹 Edita uma lista (abre formulário com dados atuais)
-  // ------------------------------------------------------------
-  const handleEditList = (listId: number) => {
-    setEditingListId(listId);
-  };
+    const { listId, index } = editingItemIndex;
 
-  // ------------------------------------------------------------
-  // 🔹 Salva alterações de uma lista editada
-  // ------------------------------------------------------------
-  const handleUpdateList = (data: { name: string; description: string }) => {
-    setLists((prev) =>
-      prev.map((list) =>
-        list.id === editingListId
-          ? { ...list, name: data.name, description: data.description }
-          : list
-      )
-    );
-    setEditingListId(null);
-    setMessage("✏️ Lista atualizada com sucesso!");
-  };
-
-  // ------------------------------------------------------------
-  // 🔹 Remove um item de uma lista
-  // ------------------------------------------------------------
-  const handleDeleteItem = (listId: number, itemIndex: number) => {
-    setLists((prev) =>
-      prev.map((list) =>
+    setLists((prevLists) =>
+      prevLists.map((list) =>
         list.id === listId
-          ? { ...list, items: list.items.filter((_, i) => i !== itemIndex) }
+          ? {
+              ...list,
+              items: list.items.map((item, i) =>
+                i === index ? { name: data.name, description: data.description } : item
+              ),
+            }
           : list
       )
     );
-    setMessage("🗑️ Item removido com sucesso!");
+
+    setEditingItemIndex(null);
+    setMessage(`✏️ Item atualizado com sucesso!`);
   };
 
   // ------------------------------------------------------------
-  // 🔹 Cancelar qualquer formulário ativo
+  // ❌ Excluir item dentro da lista
+  // ------------------------------------------------------------
+  const handleDeleteItem = (listId: number, index: number) => {
+    setLists((prevLists) =>
+      prevLists.map((list) =>
+        list.id === listId
+          ? { ...list, items: list.items.filter((_, i) => i !== index) }
+          : list
+      )
+    );
+
+    setMessage(`🗑️ Item removido da lista.`);
+  };
+
+  // ------------------------------------------------------------
+  // ⚙️ Utilitários
   // ------------------------------------------------------------
   const handleCancelForm = () => {
     setIsFormOpen(false);
     setActiveListId(null);
     setEditingListId(null);
+    setEditingItemIndex(null);
   };
 
-  // ------------------------------------------------------------
-  // 🔹 Limpa todas as listas
-  // ------------------------------------------------------------
-  const handleClearAll = () => {
-    if (window.confirm("Deseja remover todas as listas?")) {
-      setLists([]);
-      localStorage.removeItem("my-lists-data");
-      setMessage("🧹 Todas as listas foram apagadas.");
-    }
-  };
-
-  // ------------------------------------------------------------
-  // 🔹 Fecha alerta
-  // ------------------------------------------------------------
   const handleCloseAlert = () => setMessage(null);
 
   // ------------------------------------------------------------
-  // 🔸 Interface visual
+  // 🧱 Renderização
   // ------------------------------------------------------------
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
-      <Header />
+      <Navbar />
 
       <main className="pt-20 p-8">
         <h1 className="text-3xl font-bold mb-6 text-center">
-          🗂️ Gerenciador de Listas — Edição e Exclusão
+          📚 Gerenciador Completo de Listas
         </h1>
 
         {message && (
@@ -191,30 +180,27 @@ export default function ListPage() {
           </Alert>
         )}
 
-        <div className="flex justify-center mb-6 gap-3">
-          {!isFormOpen && activeListId === null && editingListId === null && (
+        {/* Formulário principal para nova lista */}
+        {!isFormOpen && !editingListId && activeListId === null && (
+          <div className="flex justify-center mb-6">
             <Button variant="primary" onClick={() => setIsFormOpen(true)}>
               ➕ Criar Nova Lista
             </Button>
-          )}
-          {lists.length > 0 && (
-            <Button variant="danger" onClick={handleClearAll}>
-              🗑️ Limpar Tudo
-            </Button>
-          )}
-        </div>
+          </div>
+        )}
 
         {isFormOpen && (
           <ListForm onSubmit={handleAddList} onCancel={handleCancelForm} />
         )}
 
-        {editingListId !== null && (
+        {editingListId && (
           <ListForm
-            onSubmit={handleUpdateList}
+            onSubmit={handleEditList}
             onCancel={handleCancelForm}
           />
         )}
 
+        {/* Exibe todas as listas */}
         <div className="max-w-3xl mx-auto space-y-6 mt-8">
           {lists.length === 0 ? (
             <p className="text-center text-gray-500">
@@ -228,22 +214,22 @@ export default function ListPage() {
                 footer={
                   <div className="flex justify-end space-x-2">
                     <Button
-                      variant="secondary"
-                      onClick={() => handleEditList(list.id)}
+                      variant="default"
+                      onClick={() => setEditingListId(list.id)}
                     >
-                      ✏️ Editar
+                      ✏️ Editar Lista
                     </Button>
                     <Button
                       variant="danger"
                       onClick={() => handleDeleteList(list.id)}
                     >
-                      ❌ Excluir
+                      🗑️ Excluir Lista
                     </Button>
                     <Button
                       variant="primary"
                       onClick={() => setActiveListId(list.id)}
                     >
-                      ➕ Item
+                      ➕ Adicionar Item
                     </Button>
                   </div>
                 }
@@ -255,29 +241,50 @@ export default function ListPage() {
                 {list.items.length === 0 ? (
                   <p className="text-sm text-gray-500">Nenhum item ainda.</p>
                 ) : (
-                  <ul className="list-disc list-inside space-y-1">
+                  <ul className="list-disc list-inside space-y-2">
                     {list.items.map((item, index) => (
-                      <li key={index} className="pl-2 flex justify-between">
-                        <span>
+                      <li key={index} className="pl-2 flex justify-between items-center">
+                        <div>
                           <strong>{item.name}</strong> — {item.description}
-                        </span>
-                        <Button
-                          variant="danger"
-                          onClick={() =>
-                            handleDeleteItem(list.id, index)
-                          }
-                        >
-                          🗑️
-                        </Button>
+                        </div>
+                        <div className="space-x-2">
+                          <Button
+                            variant="default"
+                            onClick={() =>
+                              setEditingItemIndex({ listId: list.id, index })
+                            }
+                          >
+                            ✏️
+                          </Button>
+                          <Button
+                            variant="danger"
+                            onClick={() =>
+                              handleDeleteItem(list.id, index)
+                            }
+                          >
+                            🗑️
+                          </Button>
+                        </div>
                       </li>
                     ))}
                   </ul>
                 )}
 
+                {/* Formulário para novo item */}
                 {activeListId === list.id && (
                   <div className="mt-4">
                     <ListForm
                       onSubmit={(item) => handleAddItemToList(list.id, item)}
+                      onCancel={handleCancelForm}
+                    />
+                  </div>
+                )}
+
+                {/* Formulário para editar item */}
+                {editingItemIndex?.listId === list.id && (
+                  <div className="mt-4">
+                    <ListForm
+                      onSubmit={handleEditItem}
                       onCancel={handleCancelForm}
                     />
                   </div>
