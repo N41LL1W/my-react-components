@@ -1,11 +1,17 @@
-// src/pages/lists/ListPage.tsx
+// ------------------------------------------------------------
+// 📄 ListPage.tsx
+// ------------------------------------------------------------
+// Página para gerenciamento de listas e itens.
+// Agora com tooltips integrados para melhorar a usabilidade!
+// ------------------------------------------------------------
+
 import { useState } from "react";
-import Navbar from "../../components/layout/Navbar"; // ✅ Usa Navbar unificado
+import Navbar from "../../components/layout/Navbar";
 import { Button } from "../../components/ui/Button";
 import Card from "../../components/ui/Card";
 import Alert from "../../components/ui/Alert";
 import { ListForm } from "../../components/lists/ListForm";
-import { Dropdown } from "../../components/ui/DropDown";
+import { Tooltip } from "../../components/ui/Tooltip"; // 🆕 import do Tooltip
 
 // ------------------------------------------------------------
 // 🔹 Tipos de dados usados
@@ -30,10 +36,9 @@ export default function ListPage() {
   const [activeListId, setActiveListId] = useState<number | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
-  const [filter, setFilter] = useState<string>("Todas");
 
   // ------------------------------------------------------------
-  // 🔹 Funções de manipulação
+  // 🔹 Adiciona nova lista
   // ------------------------------------------------------------
   const handleAddList = (data: { name: string; description: string }) => {
     const newList: List = {
@@ -42,110 +47,118 @@ export default function ListPage() {
       description: data.description,
       items: [],
     };
+
     setLists((prev) => [...prev, newList]);
     setIsFormOpen(false);
     setMessage(`✅ Lista "${data.name}" criada com sucesso!`);
   };
 
+  // ------------------------------------------------------------
+  // 🔹 Adiciona item em uma lista específica
+  // ------------------------------------------------------------
   const handleAddItemToList = (listId: number, item: Item) => {
     setLists((prevLists) =>
       prevLists.map((list) =>
-        list.id === listId
-          ? { ...list, items: [...list.items, item] }
-          : list
+        list.id === listId ? { ...list, items: [...list.items, item] } : list
       )
     );
+
     setActiveListId(null);
     setMessage(`📝 Item "${item.name}" adicionado à lista!`);
   };
 
+  // ------------------------------------------------------------
+  // 🔹 Cancela formulários ativos
+  // ------------------------------------------------------------
   const handleCancelForm = () => {
     setIsFormOpen(false);
     setActiveListId(null);
   };
 
-  const handleCloseAlert = () => {
-    setMessage(null);
-  };
+  // ------------------------------------------------------------
+  // 🔹 Fecha o alerta
+  // ------------------------------------------------------------
+  const handleCloseAlert = () => setMessage(null);
 
   // ------------------------------------------------------------
-  // 🔹 Lista filtrada com base no dropdown
+  // 🔹 Renderização principal
   // ------------------------------------------------------------
-  const filteredLists =
-    filter === "Todas"
-      ? lists
-      : lists.filter((list) => list.name.includes(filter));
-
-  const filterOptions = ["Todas", ...lists.map((list) => list.name)];
-
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
-      {/* 🔹 Navbar unificado */}
+      {/* 🔹 Barra de navegação */}
       <Navbar />
 
-      {/* 🔹 Conteúdo principal */}
-      <main className="pt-20 p-8">
+      <main className="pt-24 p-8">
         <h1 className="text-3xl font-bold mb-6 text-center">
           📚 Gerenciador de Listas e Itens
         </h1>
 
-        {/* Alerta de feedback */}
+        {/* ------------------------------------------------------------
+          🔸 Alerta de feedback
+        ------------------------------------------------------------- */}
         {message && (
           <Alert type="success" onClose={handleCloseAlert}>
             {message}
           </Alert>
         )}
 
-        {/* Dropdown de filtro de listas */}
-        <div className="max-w-xs mx-auto mb-6">
-          <Dropdown
-            label={`Filtro: ${filter}`}
-            options={filterOptions}
-            onSelect={(value) => setFilter(value)}
-            fullWidth
-          />
-        </div>
-
-        {/* Botão para criar nova lista */}
+        {/* ------------------------------------------------------------
+          🔸 Botão para criar nova lista com Tooltip
+        ------------------------------------------------------------- */}
         {!isFormOpen && activeListId === null && (
           <div className="flex justify-center mb-6">
-            <Button variant="primary" onClick={() => setIsFormOpen(true)}>
-              ➕ Criar Nova Lista
-            </Button>
+            <Tooltip content="Crie uma nova lista para organizar seus itens" position="bottom">
+              <Button variant="primary" onClick={() => setIsFormOpen(true)}>
+                ➕ Criar Nova Lista
+              </Button>
+            </Tooltip>
           </div>
         )}
 
-        {/* Formulário de nova lista */}
+        {/* ------------------------------------------------------------
+          🔸 Formulário de nova lista
+        ------------------------------------------------------------- */}
         {isFormOpen && (
-          <ListForm onSubmit={handleAddList} onCancel={handleCancelForm} />
+          <div className="flex justify-center">
+            <div className="w-1/2">
+              <ListForm onSubmit={handleAddList} onCancel={handleCancelForm} />
+            </div>
+          </div>
         )}
 
-        {/* Listas filtradas */}
+        {/* ------------------------------------------------------------
+          🔸 Exibe todas as listas criadas
+        ------------------------------------------------------------- */}
         <div className="max-w-3xl mx-auto space-y-6 mt-8">
-          {filteredLists.length === 0 ? (
+          {lists.length === 0 ? (
             <p className="text-center text-gray-500">
-              Nenhuma lista encontrada.
+              Nenhuma lista criada ainda.
             </p>
           ) : (
-            filteredLists.map((list) => (
+            lists.map((list) => (
               <Card
                 key={list.id}
                 title={list.name}
                 footer={
                   <div className="flex justify-end space-x-2">
-                    <Button
-                      variant="primary"
-                      onClick={() => setActiveListId(list.id)}
-                    >
-                      ➕ Adicionar Item
-                    </Button>
+                    {/* Tooltip aplicado sobre o botão de adicionar item */}
+                    <Tooltip content="Adicionar novo item a esta lista" position="top">
+                      <Button
+                        variant="primary"
+                        onClick={() => setActiveListId(list.id)}
+                      >
+                        ➕ Adicionar Item
+                      </Button>
+                    </Tooltip>
                   </div>
                 }
               >
+                {/* Descrição da lista */}
                 <p className="mb-3 text-gray-700 dark:text-gray-300">
                   {list.description || "Sem descrição."}
                 </p>
 
+                {/* Itens dentro da lista */}
                 {list.items.length === 0 ? (
                   <p className="text-sm text-gray-500">Nenhum item ainda.</p>
                 ) : (
@@ -158,12 +171,11 @@ export default function ListPage() {
                   </ul>
                 )}
 
+                {/* Formulário de item dentro da lista */}
                 {activeListId === list.id && (
                   <div className="mt-4">
                     <ListForm
-                      onSubmit={(item) =>
-                        handleAddItemToList(list.id, item)
-                      }
+                      onSubmit={(item) => handleAddItemToList(list.id, item)}
                       onCancel={handleCancelForm}
                     />
                   </div>
