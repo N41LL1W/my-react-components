@@ -1,20 +1,21 @@
 // ------------------------------------------------------------
 // 📄 ListPage.tsx
 // ------------------------------------------------------------
-// Esta página gerencia múltiplas listas, e dentro de cada lista,
-// o usuário pode adicionar itens. Cada lista possui:
-//   - Um nome e descrição
-//   - Vários itens internos
+// Página principal do gerenciador de listas e itens.
+// Cada lista contém:
+//   - Nome e descrição
+//   - Vários itens (com nome e descrição)
+//   - Opções para editar e excluir
 //
 // ⚙️ Recursos atuais:
 //  - Criar múltiplas listas
-//  - Adicionar itens dentro de cada lista
-//  - Mostrar alertas de sucesso
-//  - Salvar e carregar listas automaticamente via LocalStorage
+//  - Adicionar e remover itens dentro de cada lista
+//  - Editar listas e itens
+//  - Persistência automática via LocalStorage
 //
 // 🧱 Próximos passos possíveis:
-//  - Editar e excluir listas/itens individualmente
-//  - Sincronização com API (futuro)
+//  - Filtro e busca
+//  - Organização por tags
 // ------------------------------------------------------------
 
 import { useState, useEffect } from "react";
@@ -25,7 +26,7 @@ import Alert from "../../components/ui/Alert";
 import { ListForm } from "../../components/lists/ListForm";
 
 // ------------------------------------------------------------
-// 🔹 Tipos de dados usados
+// 🔹 Tipos de dados
 // ------------------------------------------------------------
 interface Item {
   name: string;
@@ -43,43 +44,35 @@ export default function ListPage() {
   // ------------------------------------------------------------
   // 🔸 Estados principais
   // ------------------------------------------------------------
-
-  // Todas as listas criadas
   const [lists, setLists] = useState<List[]>([]);
-
-  // Lista atualmente selecionada para adicionar itens
   const [activeListId, setActiveListId] = useState<number | null>(null);
-
-  // Controla a exibição do formulário de nova lista
   const [isFormOpen, setIsFormOpen] = useState(false);
-
-  // Mensagem temporária para feedback (usada em Alert)
   const [message, setMessage] = useState<string | null>(null);
+  const [editingListId, setEditingListId] = useState<number | null>(null);
 
   // ------------------------------------------------------------
-  // 🔹 Carrega dados do LocalStorage ao iniciar a página
+  // 🔹 Carrega listas do LocalStorage ao iniciar
   // ------------------------------------------------------------
   useEffect(() => {
     const stored = localStorage.getItem("my-lists-data");
     if (stored) {
       try {
-        const parsed = JSON.parse(stored);
-        setLists(parsed);
-      } catch (err) {
-        console.error("Erro ao carregar listas do LocalStorage:", err);
+        setLists(JSON.parse(stored));
+      } catch {
+        console.error("Erro ao carregar listas salvas.");
       }
     }
   }, []);
 
   // ------------------------------------------------------------
-  // 🔹 Sempre que "lists" mudar → salva no LocalStorage
+  // 🔹 Salva listas sempre que houver alteração
   // ------------------------------------------------------------
   useEffect(() => {
     localStorage.setItem("my-lists-data", JSON.stringify(lists));
   }, [lists]);
 
   // ------------------------------------------------------------
-  // 🔹 Adiciona uma nova lista
+  // 🔹 Cria uma nova lista
   // ------------------------------------------------------------
   const handleAddList = (data: { name: string; description: string }) => {
     const newList: List = {
@@ -88,14 +81,13 @@ export default function ListPage() {
       description: data.description,
       items: [],
     };
-
     setLists((prev) => [...prev, newList]);
     setIsFormOpen(false);
-    setMessage(`✅ Lista "${data.name}" criada e salva com sucesso!`);
+    setMessage(`✅ Lista "${data.name}" criada!`);
   };
 
   // ------------------------------------------------------------
-  // 🔹 Adiciona um item dentro de uma lista específica
+  // 🔹 Adiciona item a uma lista específica
   // ------------------------------------------------------------
   const handleAddItemToList = (listId: number, item: Item) => {
     setLists((prevLists) =>
@@ -105,68 +97,106 @@ export default function ListPage() {
           : list
       )
     );
-
     setActiveListId(null);
-    setMessage(`📝 Item "${item.name}" adicionado à lista e salvo!`);
+    setMessage(`📝 Item "${item.name}" adicionado à lista!`);
   };
 
   // ------------------------------------------------------------
-  // 🔹 Cancela formulário de criação (lista ou item)
+  // 🔹 Remove uma lista inteira
+  // ------------------------------------------------------------
+  const handleDeleteList = (listId: number) => {
+    const listName = lists.find((l) => l.id === listId)?.name;
+    if (window.confirm(`Excluir a lista "${listName}"?`)) {
+      setLists((prev) => prev.filter((list) => list.id !== listId));
+      setMessage(`🗑️ Lista "${listName}" removida.`);
+    }
+  };
+
+  // ------------------------------------------------------------
+  // 🔹 Edita uma lista (abre formulário com dados atuais)
+  // ------------------------------------------------------------
+  const handleEditList = (listId: number) => {
+    setEditingListId(listId);
+  };
+
+  // ------------------------------------------------------------
+  // 🔹 Salva alterações de uma lista editada
+  // ------------------------------------------------------------
+  const handleUpdateList = (data: { name: string; description: string }) => {
+    setLists((prev) =>
+      prev.map((list) =>
+        list.id === editingListId
+          ? { ...list, name: data.name, description: data.description }
+          : list
+      )
+    );
+    setEditingListId(null);
+    setMessage("✏️ Lista atualizada com sucesso!");
+  };
+
+  // ------------------------------------------------------------
+  // 🔹 Remove um item de uma lista
+  // ------------------------------------------------------------
+  const handleDeleteItem = (listId: number, itemIndex: number) => {
+    setLists((prev) =>
+      prev.map((list) =>
+        list.id === listId
+          ? { ...list, items: list.items.filter((_, i) => i !== itemIndex) }
+          : list
+      )
+    );
+    setMessage("🗑️ Item removido com sucesso!");
+  };
+
+  // ------------------------------------------------------------
+  // 🔹 Cancelar qualquer formulário ativo
   // ------------------------------------------------------------
   const handleCancelForm = () => {
     setIsFormOpen(false);
     setActiveListId(null);
+    setEditingListId(null);
   };
 
   // ------------------------------------------------------------
-  // 🔹 Fecha o alerta de mensagem
-  // ------------------------------------------------------------
-  const handleCloseAlert = () => {
-    setMessage(null);
-  };
-
-  // ------------------------------------------------------------
-  // 🔹 Limpa todas as listas (opcional)
+  // 🔹 Limpa todas as listas
   // ------------------------------------------------------------
   const handleClearAll = () => {
-    setLists([]);
-    localStorage.removeItem("my-lists-data");
-    setMessage("🗑️ Todas as listas foram removidas.");
+    if (window.confirm("Deseja remover todas as listas?")) {
+      setLists([]);
+      localStorage.removeItem("my-lists-data");
+      setMessage("🧹 Todas as listas foram apagadas.");
+    }
   };
 
   // ------------------------------------------------------------
-  // 🔸 Interface visual da página
+  // 🔹 Fecha alerta
+  // ------------------------------------------------------------
+  const handleCloseAlert = () => setMessage(null);
+
+  // ------------------------------------------------------------
+  // 🔸 Interface visual
   // ------------------------------------------------------------
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
-      {/* 🔹 Cabeçalho fixo no topo */}
       <Header />
 
-      {/* 🔹 Conteúdo principal */}
       <main className="pt-20 p-8">
         <h1 className="text-3xl font-bold mb-6 text-center">
-          📚 Gerenciador de Listas e Itens (com persistência)
+          🗂️ Gerenciador de Listas — Edição e Exclusão
         </h1>
 
-        {/* ------------------------------------------------------------
-          🔸 Alerta de feedback (sucesso, informação, etc)
-        ------------------------------------------------------------- */}
         {message && (
           <Alert type="success" onClose={handleCloseAlert}>
             {message}
           </Alert>
         )}
 
-        {/* ------------------------------------------------------------
-          🔸 Botões principais (criar lista / limpar tudo)
-        ------------------------------------------------------------- */}
         <div className="flex justify-center mb-6 gap-3">
-          {!isFormOpen && activeListId === null && (
+          {!isFormOpen && activeListId === null && editingListId === null && (
             <Button variant="primary" onClick={() => setIsFormOpen(true)}>
               ➕ Criar Nova Lista
             </Button>
           )}
-
           {lists.length > 0 && (
             <Button variant="danger" onClick={handleClearAll}>
               🗑️ Limpar Tudo
@@ -174,16 +204,17 @@ export default function ListPage() {
           )}
         </div>
 
-        {/* ------------------------------------------------------------
-          🔸 Formulário para criar nova lista
-        ------------------------------------------------------------- */}
         {isFormOpen && (
           <ListForm onSubmit={handleAddList} onCancel={handleCancelForm} />
         )}
 
-        {/* ------------------------------------------------------------
-          🔸 Exibe todas as listas criadas
-        ------------------------------------------------------------- */}
+        {editingListId !== null && (
+          <ListForm
+            onSubmit={handleUpdateList}
+            onCancel={handleCancelForm}
+          />
+        )}
+
         <div className="max-w-3xl mx-auto space-y-6 mt-8">
           {lists.length === 0 ? (
             <p className="text-center text-gray-500">
@@ -197,33 +228,52 @@ export default function ListPage() {
                 footer={
                   <div className="flex justify-end space-x-2">
                     <Button
+                      variant="secondary"
+                      onClick={() => handleEditList(list.id)}
+                    >
+                      ✏️ Editar
+                    </Button>
+                    <Button
+                      variant="danger"
+                      onClick={() => handleDeleteList(list.id)}
+                    >
+                      ❌ Excluir
+                    </Button>
+                    <Button
                       variant="primary"
                       onClick={() => setActiveListId(list.id)}
                     >
-                      ➕ Adicionar Item
+                      ➕ Item
                     </Button>
                   </div>
                 }
               >
-                {/* Descrição da lista */}
                 <p className="mb-3 text-gray-700 dark:text-gray-300">
                   {list.description || "Sem descrição."}
                 </p>
 
-                {/* Itens dentro da lista */}
                 {list.items.length === 0 ? (
                   <p className="text-sm text-gray-500">Nenhum item ainda.</p>
                 ) : (
                   <ul className="list-disc list-inside space-y-1">
                     {list.items.map((item, index) => (
-                      <li key={index} className="pl-2">
-                        <strong>{item.name}</strong> — {item.description}
+                      <li key={index} className="pl-2 flex justify-between">
+                        <span>
+                          <strong>{item.name}</strong> — {item.description}
+                        </span>
+                        <Button
+                          variant="danger"
+                          onClick={() =>
+                            handleDeleteItem(list.id, index)
+                          }
+                        >
+                          🗑️
+                        </Button>
                       </li>
                     ))}
                   </ul>
                 )}
 
-                {/* Formulário para adicionar item nesta lista */}
                 {activeListId === list.id && (
                   <div className="mt-4">
                     <ListForm
