@@ -1,8 +1,8 @@
 // ------------------------------------------------------------
 // 📄 ListPage.tsx
 // ------------------------------------------------------------
-// Esta página exibe listas personalizadas, e dentro de cada lista,
-// o usuário pode adicionar itens. Cada lista é composta por:
+// Esta página gerencia múltiplas listas, e dentro de cada lista,
+// o usuário pode adicionar itens. Cada lista possui:
 //   - Um nome e descrição
 //   - Vários itens internos
 //
@@ -10,13 +10,14 @@
 //  - Criar múltiplas listas
 //  - Adicionar itens dentro de cada lista
 //  - Mostrar alertas de sucesso
+//  - Salvar e carregar listas automaticamente via LocalStorage
 //
 // 🧱 Próximos passos possíveis:
-//  - Editar e excluir listas/itens
-//  - Persistência com LocalStorage
+//  - Editar e excluir listas/itens individualmente
+//  - Sincronização com API (futuro)
 // ------------------------------------------------------------
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "../../components/layout/Header";
 import { Button } from "../../components/ui/Button";
 import Card from "../../components/ui/Card";
@@ -56,6 +57,28 @@ export default function ListPage() {
   const [message, setMessage] = useState<string | null>(null);
 
   // ------------------------------------------------------------
+  // 🔹 Carrega dados do LocalStorage ao iniciar a página
+  // ------------------------------------------------------------
+  useEffect(() => {
+    const stored = localStorage.getItem("my-lists-data");
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        setLists(parsed);
+      } catch (err) {
+        console.error("Erro ao carregar listas do LocalStorage:", err);
+      }
+    }
+  }, []);
+
+  // ------------------------------------------------------------
+  // 🔹 Sempre que "lists" mudar → salva no LocalStorage
+  // ------------------------------------------------------------
+  useEffect(() => {
+    localStorage.setItem("my-lists-data", JSON.stringify(lists));
+  }, [lists]);
+
+  // ------------------------------------------------------------
   // 🔹 Adiciona uma nova lista
   // ------------------------------------------------------------
   const handleAddList = (data: { name: string; description: string }) => {
@@ -68,7 +91,7 @@ export default function ListPage() {
 
     setLists((prev) => [...prev, newList]);
     setIsFormOpen(false);
-    setMessage(`✅ Lista "${data.name}" criada com sucesso!`);
+    setMessage(`✅ Lista "${data.name}" criada e salva com sucesso!`);
   };
 
   // ------------------------------------------------------------
@@ -84,7 +107,7 @@ export default function ListPage() {
     );
 
     setActiveListId(null);
-    setMessage(`📝 Item "${item.name}" adicionado à lista!`);
+    setMessage(`📝 Item "${item.name}" adicionado à lista e salvo!`);
   };
 
   // ------------------------------------------------------------
@@ -102,6 +125,18 @@ export default function ListPage() {
     setMessage(null);
   };
 
+  // ------------------------------------------------------------
+  // 🔹 Limpa todas as listas (opcional)
+  // ------------------------------------------------------------
+  const handleClearAll = () => {
+    setLists([]);
+    localStorage.removeItem("my-lists-data");
+    setMessage("🗑️ Todas as listas foram removidas.");
+  };
+
+  // ------------------------------------------------------------
+  // 🔸 Interface visual da página
+  // ------------------------------------------------------------
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
       {/* 🔹 Cabeçalho fixo no topo */}
@@ -110,7 +145,7 @@ export default function ListPage() {
       {/* 🔹 Conteúdo principal */}
       <main className="pt-20 p-8">
         <h1 className="text-3xl font-bold mb-6 text-center">
-          📚 Gerenciador de Listas e Itens
+          📚 Gerenciador de Listas e Itens (com persistência)
         </h1>
 
         {/* ------------------------------------------------------------
@@ -123,15 +158,21 @@ export default function ListPage() {
         )}
 
         {/* ------------------------------------------------------------
-          🔸 Botão para abrir formulário de nova lista
+          🔸 Botões principais (criar lista / limpar tudo)
         ------------------------------------------------------------- */}
-        {!isFormOpen && activeListId === null && (
-          <div className="flex justify-center mb-6">
+        <div className="flex justify-center mb-6 gap-3">
+          {!isFormOpen && activeListId === null && (
             <Button variant="primary" onClick={() => setIsFormOpen(true)}>
               ➕ Criar Nova Lista
             </Button>
-          </div>
-        )}
+          )}
+
+          {lists.length > 0 && (
+            <Button variant="danger" onClick={handleClearAll}>
+              🗑️ Limpar Tudo
+            </Button>
+          )}
+        </div>
 
         {/* ------------------------------------------------------------
           🔸 Formulário para criar nova lista
@@ -186,9 +227,7 @@ export default function ListPage() {
                 {activeListId === list.id && (
                   <div className="mt-4">
                     <ListForm
-                      onSubmit={(item) =>
-                        handleAddItemToList(list.id, item)
-                      }
+                      onSubmit={(item) => handleAddItemToList(list.id, item)}
                       onCancel={handleCancelForm}
                     />
                   </div>
