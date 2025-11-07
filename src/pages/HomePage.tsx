@@ -7,6 +7,8 @@ import Card from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import Modal from "../components/ui/Modal";
 import Alert from "../components/ui/Alert"; // ✅ Importa o componente de Alert
+import DataTable from "../components/DataTable"; // ✅ Importa o componente DataTable
+import CheckboxesTags from "../components/CheckboxesTags"; // ✅ Importa o componente CheckboxesTags
 
 // ------------------------------------------------------------
 // 🔹 Componente principal da página inicial
@@ -122,6 +124,26 @@ export default function HomePage() {
             </Button>
           </div>
         </Modal>
+
+        {/* ------------------------------------------------------------
+          🔹 CHECKBOX AUTOCOMLETE
+          - Componente de seleção múltipla com checkboxes
+        ------------------------------------------------------------- */}
+        <div className="p-10"> {/* Tailwind para padding */}
+          <h1 className="text-xl mb-6">Selecione seus filmes favoritos</h1>
+            <CheckboxesTags />
+        </div>
+
+        {/* ------------------------------------------------------------
+          🔹 TABELA
+          - Componente DataGrid exibindo dados em tabela
+        ------------------------------------------------------------- */}
+
+        <div className="p-8"> {/* Tailwind para padding */}
+          <h1 className="text-2xl font-bold mb-4">Minha Tabela de Dados</h1>
+            {/* Aqui o DataGrid será renderizado */}
+            <DataTable />
+        </div>
 
         {/* ------------------------------------------------------------
           🔹 TEXTO FINAL
