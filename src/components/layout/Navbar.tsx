@@ -86,6 +86,11 @@ export default function Navbar() {
             Listas
           </Link>
 
+          {/* DataGridPage */}
+          <Link to="/data" className={isActive("/data")}>
+            Tabelas
+          </Link>
+
           {/* 🔹 Botão para alternar o tema */}
           <button
             onClick={toggleTheme}
