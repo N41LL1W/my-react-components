@@ -6,9 +6,11 @@ import Navbar from "../components/layout/Navbar";
 import Card from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import Modal from "../components/ui/Modal";
-import Alert from "../components/ui/Alert"; // ✅ Importa o componente de Alert
-import DataTable from "../components/DataTable"; // ✅ Importa o componente DataTable
-import CheckboxesTags from "../components/CheckboxesTags"; // ✅ Importa o componente CheckboxesTags
+import Alert from "../components/ui/Alert"; 
+import DataTable from "../components/DataTable"; // Assumindo que este é o DataGrid ou CustomDataTable
+
+// 🚩 NOVO: Importa o componente reutilizável e os dados de exemplo (top100Films)
+import CheckboxesTags, { top100Films } from "../components/data/CheckboxesTags";
 
 // ------------------------------------------------------------
 // 🔹 Componente principal da página inicial
@@ -19,6 +21,9 @@ export default function HomePage() {
 
   // Estado que controla o alerta atual
   const [alertType, setAlertType] = useState<string | null>(null);
+
+  // 🚩 NOVO ESTADO: Armazena os filmes selecionados pelo CheckboxesTags
+  const [selectedFilms, setSelectedFilms] = useState<any[]>([]);
 
   return (
     // 🔹 Container principal com fundo adaptável ao tema
@@ -33,8 +38,6 @@ export default function HomePage() {
 
         {/* ------------------------------------------------------------
           🔸 CARD PRINCIPAL
-          - Título: “Meu primeiro Card”
-          - Conteúdo: texto e botões para abrir Modal e Alerts
         ------------------------------------------------------------- */}
         <Card
           title="Meu primeiro Card"
@@ -52,7 +55,6 @@ export default function HomePage() {
 
           {/* ------------------------------------------------------------
             🔹 SEÇÃO DOS BOTÕES DE ALERTA
-            - Cada botão exibe um tipo diferente de alerta
           ------------------------------------------------------------- */}
           <div className="flex flex-wrap justify-center gap-3 pt-5">
             {/* 🔵 Botão para mostrar alerta de informação */}
@@ -78,7 +80,6 @@ export default function HomePage() {
 
           {/* ------------------------------------------------------------
             🔸 ALERTAS CONDICIONAIS
-            - São exibidos apenas quando o tipo correspondente é selecionado
           ------------------------------------------------------------- */}
           <div className="mt-6 space-y-2">
             {alertType === "info" && (
@@ -109,7 +110,6 @@ export default function HomePage() {
 
         {/* ------------------------------------------------------------
           🔹 MODAL
-          - Abre quando o usuário clica no botão “Abrir Modal”
         ------------------------------------------------------------- */}
         <Modal
           isOpen={isModalOpen}
@@ -126,23 +126,40 @@ export default function HomePage() {
         </Modal>
 
         {/* ------------------------------------------------------------
-          🔹 CHECKBOX AUTOCOMLETE
-          - Componente de seleção múltipla com checkboxes
+          🔹 CHECKBOX AUTOCOMPLETE (NOVO USO REUTILIZÁVEL)
         ------------------------------------------------------------- */}
-        <div className="p-10"> {/* Tailwind para padding */}
-          <h1 className="text-xl mb-6">Selecione seus filmes favoritos</h1>
-            <CheckboxesTags />
+        <div className="p-10 w-full max-w-lg mx-auto"> 
+          <h1 className="text-xl mb-6 font-semibold">Selecione seus filmes favoritos</h1>
+          
+          <CheckboxesTags 
+            options={top100Films} // 👈 Dados de opções passados via prop
+            label="Escolha Filmes"
+            // 👈 Função para atualizar o estado do componente pai
+            onSelectionChange={setSelectedFilms} 
+          />
+
+          {/* Exibe o resultado para visualização */}
+          <div className="mt-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-inner">
+            <p className="font-medium text-sm">Filmes Selecionados ({selectedFilms.length}):</p>
+            <ul className="text-xs list-disc list-inside">
+              {selectedFilms.length > 0
+                ? selectedFilms.map((film, index) => (
+                    <li key={index}>{film.title} ({film.year})</li>
+                  ))
+                : <li>Nenhum filme selecionado.</li>
+              }
+            </ul>
+          </div>
         </div>
 
         {/* ------------------------------------------------------------
           🔹 TABELA
-          - Componente DataGrid exibindo dados em tabela
         ------------------------------------------------------------- */}
 
-        <div className="p-8"> {/* Tailwind para padding */}
+        <div className="p-8 w-full max-w-4xl mx-auto"> 
           <h1 className="text-2xl font-bold mb-4">Minha Tabela de Dados</h1>
-            {/* Aqui o DataGrid será renderizado */}
-            <DataTable />
+          {/* Aqui o DataGrid será renderizado */}
+          <DataTable />
         </div>
 
         {/* ------------------------------------------------------------
